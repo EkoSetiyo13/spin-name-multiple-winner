@@ -2,19 +2,21 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Winners() {
   const [winners, setWinners] = useState<string[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const storedWinners = JSON.parse(localStorage.getItem("winners") || "[]");
     setWinners(storedWinners);
   }, []);
 
-  const handleReset = () => {
+  const handleSpinAgain = () => {
     localStorage.removeItem("winners");
-    localStorage.removeItem("names");
     setWinners([]);
+    router.push("/spin");
   };
 
   return (
@@ -31,17 +33,11 @@ export default function Winners() {
         ))}
       </div>
       <div className="flex space-x-4">
-        <Link
-          href="/spin"
+        <button
+          onClick={handleSpinAgain}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
           Back to Spin
-        </Link>
-        <button
-          onClick={handleReset}
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Reset All
         </button>
       </div>
     </div>
