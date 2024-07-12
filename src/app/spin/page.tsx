@@ -1,9 +1,31 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Wheel } from "react-custom-roulette";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+// Definisikan tipe untuk props Wheel
+interface WheelProps {
+  mustStartSpinning: boolean;
+  prizeNumber: number;
+  data: { option: string }[];
+  onStopSpinning: () => void;
+  backgroundColors: string[];
+  textColors: string[];
+  outerBorderColor: string;
+  outerBorderWidth: number;
+  innerRadius: number;
+  radiusLineColor: string;
+  radiusLineWidth: number;
+  fontSize: number;
+  perpendicularText: boolean;
+}
+
+const Wheel = dynamic<WheelProps>(
+  () => import("react-custom-roulette").then((mod) => mod.Wheel),
+  { ssr: false }
+);
 
 export default function Spin() {
   const [names, setNames] = useState<string[]>([]);
@@ -11,9 +33,11 @@ export default function Spin() {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
   const [selectCount, setSelectCount] = useState(100);
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
+    setIsClient(true);
     const storedNames = JSON.parse(localStorage.getItem("names") || "[]");
     setNames(storedNames);
   }, []);
@@ -51,6 +75,10 @@ export default function Spin() {
   };
 
   const wheelData = names.map((name) => ({ option: name }));
+
+  if (!isClient) {
+    return <div>Loading...</div>; // or any loading indicator
+  }
 
   return (
     <div className="container mx-auto p-4">
